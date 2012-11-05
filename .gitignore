@@ -1,0 +1,7 @@
+# Directories
+_Re*
+bin
+obj
+
+# Common Files
+*.user
