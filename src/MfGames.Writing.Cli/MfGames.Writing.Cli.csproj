@@ -43,6 +43,9 @@
     <AssemblyOriginatorKeyFile>MfGames.Writing.Cli.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommandLine">
+      <HintPath>..\packages\CommandLineParser.1.9.3.19\lib\CommandLine.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -57,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="MfGames.Writing.Cli.snk" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MfGames.Writing\MfGames.Writing.csproj">

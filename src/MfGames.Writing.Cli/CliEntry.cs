@@ -5,16 +5,19 @@
 namespace MfGames.Writing.Cli
 {
 	/// <summary>
-	/// Defines the entry point for the command-line interface for MfGames Writing. Billy bob lkjsdf lksjdf lksdjf lskdfj lskdfj slkdfj sdlfkj dsf
+	/// Defines the entry point for the command-line interface for MfGames Writing.
 	/// </summary>
 	internal class CliEntry
 	{
 		/// <summary>
 		/// Starting point for the application.
 		/// </summary>
-		/// <param name="args"> The args. </param>
+		/// <param name="args">The command-line arguments to the application. </param>
 		private static void Main(string[] args)
 		{
+			// --root-directory=
+			// --search-directory=
+			// inputXml outputXml
 		}
 	}
 }
