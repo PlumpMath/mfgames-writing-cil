@@ -7,3 +7,7 @@ src/packages
 # Common Files
 *.user
 *.suo
+
+# NuGet
+*.nupkg
+generate-nupkg.bat
