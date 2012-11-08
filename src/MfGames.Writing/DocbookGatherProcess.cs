@@ -44,6 +44,12 @@ namespace MfGames.Writing
 		/// </summary>
 		public override void Run()
 		{
+			// Verify data.
+			if (OutputDirectory == null)
+			{
+				OutputDirectory = OutputFile.Directory;
+			}
+
 			// Verify that the input file exists since if we can't, it is
 			// meaningless to continue.
 			if (!InputFile.Exists)
@@ -57,7 +63,7 @@ namespace MfGames.Writing
 			// stream but use an intelligent loader to do all the work. This
 			// way, we can reuse much of the IO functionality without
 			// cluttering our code.
-			using (GatheringXmlReader xmlReader = CreateXmlReader())
+			using (XmlReader xmlReader = CreateXmlReader())
 			using (XmlIdentityWriter xmlWriter = CreateXmlWriter())
 			{
 				// Using the identity XML writer will go through the entire
@@ -72,22 +78,24 @@ namespace MfGames.Writing
 		/// Creates the XML reader for loading the XML file.
 		/// </summary>
 		/// <returns></returns>
-		private GatheringXmlReader CreateXmlReader()
+		private XmlReader CreateXmlReader()
 		{
 			// Get an appropriate stream to the input file.
 			FileStream stream = InputFile.Open(
 				FileMode.Open,
 				FileAccess.Read,
 				FileShare.Read);
-			XmlReader xmlReader = XmlReader.Create(stream);
+			XmlReader xmlReader = XmlReader.Create(
+				stream,
+				new XmlReaderSettings(),
+				InputFile.FullName);
 
 			// Set up the gathering XML reader.
-			var gatheringXmlReader = new GatheringXmlReader(xmlReader)
+			var gatheringReader = new DocBookGatheringReader(xmlReader)
 			{
 				OutputDirectory = OutputDirectory
 			};
-
-			return gatheringXmlReader;
+			return gatheringReader;
 		}
 
 		/// <summary>
@@ -100,14 +108,13 @@ namespace MfGames.Writing
 			FileStream stream = OutputFile.Open(
 				FileMode.Create,
 				FileAccess.Write);
+			var writingSettings = new XmlWriterSettings
+			{
+				OmitXmlDeclaration = true
+			};
 			XmlWriter xmlWriter = XmlWriter.Create(
 				stream,
-				new XmlWriterSettings
-				{
-					OmitXmlDeclaration = true
-				});
-
-			// Create an identity writer which handles outputing the input.
+				writingSettings);
 			var identityWriter = new XmlIdentityWriter(xmlWriter);
 
 			return identityWriter;
