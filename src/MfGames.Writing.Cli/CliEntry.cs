@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MfGames.Writing.Cli
 {
@@ -32,11 +33,12 @@ namespace MfGames.Writing.Cli
 				throw new ApplicationException("The only operation supported is 'gather'.");
 			}
 
-			// Create the process arguments.
-			var process = new DocbookGatherProcess();
-
-			process.InputFilename = arguments.RemainingArguments[0];
-			process.OutputFilename = arguments.RemainingArguments[1];
+			// Create the process arguments and execute it.
+			var process = new DocbookGatherProcess
+			{
+				InputFile = new FileInfo(arguments.RemainingArguments[0]),
+				OutputFile = new FileInfo(arguments.RemainingArguments[1])
+			};
 
 			process.Run();
 		}

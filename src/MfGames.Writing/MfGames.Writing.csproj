@@ -40,6 +40,9 @@
     <AssemblyOriginatorKeyFile>MfGames.Writing.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MfGames">
+      <HintPath>..\packages\MfGames.4.0\lib\net35\MfGames.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -50,10 +53,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DocbookGatherProcess.cs" />
+    <Compile Include="ProcessBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Xml\GatheringXmlReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MfGames.Writing.snk" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

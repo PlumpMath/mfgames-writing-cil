@@ -2,9 +2,10 @@
 // Released under the MIT license
 // http://mfgames.com/mfgames-writing/license
 
-using System;
 using System.IO;
 using System.Xml;
+using MfGames.Writing.Xml;
+using MfGames.Xml;
 
 namespace MfGames.Writing
 {
@@ -13,117 +14,97 @@ namespace MfGames.Writing
 	/// the XInclude operations along with copying files and media into the
 	/// same directory as the output.
 	/// </summary>
-	public class DocbookGatherProcess
+	public class DocbookGatherProcess: ProcessBase
 	{
 		/// <summary>
-		/// Gets or sets the input filename which is in DocBook 5 format.
+		/// Gets or sets the input file which is in DocBook 5 format.
 		/// </summary>
-		public string InputFilename { get; set; }
+		public FileInfo InputFile { get; set; }
 
 		/// <summary>
-		/// Gets or sets the output filename, which will be a DocBook format.
+		/// Gets or sets the output file, which will be a DocBook format.
 		/// </summary>
-		public string OutputFilename { get; set; }
+		public FileInfo OutputFile { get; set; }
+
+		/// <summary>
+		/// Gets or sets the output directory for the media files. References
+		/// in the resulting XML will be relative from the OutputFile to
+		/// this directory.
+		/// </summary>
+		public DirectoryInfo OutputDirectory { get; set; }
 
 		/// <summary>
 		/// Runs this process and performs the appropriate actions.
 		/// </summary>
-		public void Run()
+		public override void Run()
 		{
-			// Open up the input file.
-			var inputFile = new FileInfo(InputFilename);
-
-			if (!inputFile.Exists)
+			// Verify that the input file exists since if we can't, it is
+			// meaningless to continue.
+			if (!InputFile.Exists)
 			{
 				throw new FileNotFoundException(
 					"Cannot find input file.",
-					InputFilename);
+					InputFile.FullName);
 			}
 
-			using (FileStream inputStream = inputFile.Open(
-				FileMode.Open,
-				FileAccess.Read,
-				FileShare.Read))
-			using (XmlReader reader = XmlReader.Create(inputStream))
+			// We use the identity XML writer to copy out the resulting XML
+			// stream but use an intelligent loader to do all the work. This
+			// way, we can reuse much of the IO functionality without
+			// cluttering our code.
+			using (GatheringXmlReader xmlReader = CreateXmlReader())
+			using (XmlIdentityWriter xmlWriter = CreateXmlWriter())
 			{
-				// Create the output file.
-				var outputFile = new FileInfo(OutputFilename);
-
-				using (FileStream outputStream = outputFile.Open(
-					FileMode.Create,
-					FileAccess.Write,
-					FileShare.Write))
-				using (XmlWriter writer = XmlWriter.Create(outputStream))
-				{
-					// Process the input file and generate the output.
-					Process(
-						reader,
-						writer);
-				}
+				// Using the identity XML writer will go through the entire
+				// reader XML and write it out. This will cause the gathering
+				// reader to load in the various XInclude elements and also
+				// copy the media files to the appropriate place.
+				xmlWriter.Load(xmlReader);
 			}
 		}
 
 		/// <summary>
-		/// Processes the specified reader and generate the output.
+		/// Creates the XML reader for loading the XML file.
 		/// </summary>
-		/// <param name="reader">The reader.</param>
-		/// <param name="writer">The writer.</param>
-		private void Process(
-			XmlReader reader,
-			XmlWriter writer)
+		/// <returns></returns>
+		private GatheringXmlReader CreateXmlReader()
 		{
-			// Loop through the reader input.
-			while (reader.Read())
+			// Get an appropriate stream to the input file.
+			FileStream stream = InputFile.Open(
+				FileMode.Open,
+				FileAccess.Read,
+				FileShare.Read);
+			XmlReader xmlReader = XmlReader.Create(stream);
+
+			// Set up the gathering XML reader.
+			var gatheringXmlReader = new GatheringXmlReader(xmlReader)
 			{
-				// Figure out what to do based on the type.
-				switch (reader.NodeType)
+				OutputDirectory = OutputDirectory
+			};
+
+			return gatheringXmlReader;
+		}
+
+		/// <summary>
+		/// Creates the XML writer to the output file.
+		/// </summary>
+		/// <returns></returns>
+		private XmlIdentityWriter CreateXmlWriter()
+		{
+			// Create an appropriate output stream for the file.
+			FileStream stream = OutputFile.Open(
+				FileMode.Create,
+				FileAccess.Write);
+			XmlWriter xmlWriter = XmlWriter.Create(
+				stream,
+				new XmlWriterSettings
 				{
-					case XmlNodeType.Element:
-						writer.WriteStartElement(reader.Prefix, reader.LocalName, reader.NamespaceURI);
-						writer.WriteAttributes(reader, true);
+					OmitXmlDeclaration = true
+				});
 
-						if (reader.IsEmptyElement)
-						{
-							writer.WriteEndElement();
-						}
+			// Create an identity writer which handles outputing the input.
+			var identityWriter = new XmlIdentityWriter(xmlWriter);
 
-						break;
-
-					case XmlNodeType.Text:
-						writer.WriteString(reader.Value);
-						break;
-
-					case XmlNodeType.Whitespace:
-					case XmlNodeType.SignificantWhitespace:
-						writer.WriteWhitespace(reader.Value);
-						break;
-
-					case XmlNodeType.CDATA:
-						writer.WriteCData(reader.Value);
-						break;
-
-					case XmlNodeType.EntityReference:
-						writer.WriteEntityRef(reader.Name);
-						break;
-
-					case XmlNodeType.XmlDeclaration:
-					case XmlNodeType.ProcessingInstruction:
-						writer.WriteProcessingInstruction(reader.Name, reader.Value);
-						break;
-
-					case XmlNodeType.DocumentType:
-						writer.WriteDocType(reader.Name, reader.GetAttribute("PUBLIC"), reader.GetAttribute("SYSTEM"), reader.Value);
-						break;
-
-					case XmlNodeType.Comment:
-						writer.WriteComment(reader.Value);
-						break;
-
-					case XmlNodeType.EndElement:
-						writer.WriteFullEndElement();
-						break;
-				}
-			}
+			return identityWriter;
 		}
 	}
 }
