@@ -17,23 +17,16 @@ namespace MfGames.Writing.Xml
 	/// </summary>
 	public class GatheringXmlReader: XIncludeReader
 	{
-		#region Constructors
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="GatheringXmlReader"/> class.
-		/// </summary>
-		/// <param name="underlyingReader">The underlying reader.</param>
-		public GatheringXmlReader(XmlReader underlyingReader)
-			: base(underlyingReader)
-		{
-		}
-
-		#endregion
+		#region Properties
 
 		/// <summary>
 		/// Gets or sets the output directory for storing files.
 		/// </summary>
 		public DirectoryInfo OutputDirectory { get; set; }
+
+		#endregion
+
+		#region Methods
 
 		/// <summary>
 		/// Gets the included XML reader based on the current node.
@@ -54,5 +47,20 @@ namespace MfGames.Writing.Xml
 
 			return reader;
 		}
+
+		#endregion
+
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="GatheringXmlReader"/> class.
+		/// </summary>
+		/// <param name="underlyingReader">The underlying reader.</param>
+		public GatheringXmlReader(XmlReader underlyingReader)
+			: base(underlyingReader)
+		{
+		}
+
+		#endregion
 	}
 }

@@ -16,15 +16,12 @@ namespace MfGames.Writing
 	/// </summary>
 	public class DocbookGatherProcess: ProcessBase
 	{
+		#region Properties
+
 		/// <summary>
 		/// Gets or sets the input file which is in DocBook 5 format.
 		/// </summary>
 		public FileInfo InputFile { get; set; }
-
-		/// <summary>
-		/// Gets or sets the output file, which will be a DocBook format.
-		/// </summary>
-		public FileInfo OutputFile { get; set; }
 
 		/// <summary>
 		/// Gets or sets the output directory for the media files. References
@@ -32,6 +29,15 @@ namespace MfGames.Writing
 		/// this directory.
 		/// </summary>
 		public DirectoryInfo OutputDirectory { get; set; }
+
+		/// <summary>
+		/// Gets or sets the output file, which will be a DocBook format.
+		/// </summary>
+		public FileInfo OutputFile { get; set; }
+
+		#endregion
+
+		#region Methods
 
 		/// <summary>
 		/// Runs this process and performs the appropriate actions.
@@ -106,5 +112,7 @@ namespace MfGames.Writing
 
 			return identityWriter;
 		}
+
+		#endregion
 	}
 }

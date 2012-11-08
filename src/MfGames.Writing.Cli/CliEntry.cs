@@ -13,6 +13,8 @@ namespace MfGames.Writing.Cli
 	/// </summary>
 	internal class CliEntry
 	{
+		#region Methods
+
 		/// <summary>
 		/// Starting point for the application.
 		/// </summary>
@@ -91,5 +93,7 @@ namespace MfGames.Writing.Cli
 			// Return the resulting arguments object.
 			return arguments;
 		}
+
+		#endregion
 	}
 }

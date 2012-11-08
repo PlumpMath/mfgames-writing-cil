@@ -12,17 +12,7 @@ namespace MfGames.Writing
 	/// </summary>
 	public abstract class ProcessBase
 	{
-		#region Constructors
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="ProcessBase"/> class.
-		/// </summary>
-		public ProcessBase()
-		{
-			SearchDirectories = new List<DirectoryInfo>();
-		}
-
-		#endregion
+		#region Properties
 
 		/// <summary>
 		/// Gets or sets the root directory. When searching for using the 
@@ -36,9 +26,27 @@ namespace MfGames.Writing
 		/// </summary>
 		public List<DirectoryInfo> SearchDirectories { get; private set; }
 
+		#endregion
+
+		#region Methods
+
 		/// <summary>
 		/// Runs this process and performs the appropriate actions.
 		/// </summary>
 		public abstract void Run();
+
+		#endregion
+
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ProcessBase"/> class.
+		/// </summary>
+		public ProcessBase()
+		{
+			SearchDirectories = new List<DirectoryInfo>();
+		}
+
+		#endregion
 	}
 }

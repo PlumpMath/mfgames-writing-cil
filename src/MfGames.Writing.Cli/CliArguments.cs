@@ -11,13 +11,7 @@ namespace MfGames.Writing.Cli
 	/// </summary>
 	internal class CliArguments
 	{
-		/// <summary>
-		/// Initializes a new instance of the <see cref="CliArguments"/> class.
-		/// </summary>
-		public CliArguments()
-		{
-			RemainingArguments = new List<string>();
-		}
+		#region Properties
 
 		/// <summary>
 		/// Gets or sets the format for the operation.
@@ -33,5 +27,19 @@ namespace MfGames.Writing.Cli
 		/// Gets the remaining arguments.
 		/// </summary>
 		public List<string> RemainingArguments { get; private set; }
+
+		#endregion
+
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CliArguments"/> class.
+		/// </summary>
+		public CliArguments()
+		{
+			RemainingArguments = new List<string>();
+		}
+
+		#endregion
 	}
 }
