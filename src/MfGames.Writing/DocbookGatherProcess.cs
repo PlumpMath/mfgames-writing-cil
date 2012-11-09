@@ -93,6 +93,7 @@ namespace MfGames.Writing
 			// Set up the gathering XML reader.
 			var gatheringReader = new DocBookGatheringReader(xmlReader)
 			{
+				OutputFile = OutputFile,
 				OutputDirectory = OutputDirectory
 			};
 			return gatheringReader;

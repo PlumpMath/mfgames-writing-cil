@@ -45,6 +45,11 @@ namespace MfGames.Writing.Xml
 		public DirectoryInfo OutputDirectory { get; set; }
 
 		/// <summary>
+		/// Gets or sets the output file.
+		/// </summary>
+		public FileInfo OutputFile { get; set; }
+
+		/// <summary>
 		/// When overridden in a derived class, gets the text value of the current node.
 		/// </summary>
 		/// <returns>
@@ -346,6 +351,10 @@ namespace MfGames.Writing.Xml
 			// Create the overriden attributes list so we use that instead.
 			overriddenAttributes = new List<Tuple<string, string>>();
 
+			// Figure out the relative path to the file.
+			DirectoryInfo outputFileDirectory = OutputFile.Directory;
+			string relativePath = file.GetRelativePathTo(outputFileDirectory);
+
 			// Loop through all the attributes, grabbing their name and values.
 			MoveToFirstAttribute();
 
@@ -355,7 +364,7 @@ namespace MfGames.Writing.Xml
 				var entry = new Tuple<string, string>(
 					Name,
 					Name == "fileref"
-						? file.FullName
+						? relativePath
 						: base.Value);
 
 				// Add the new attribute to the list.
