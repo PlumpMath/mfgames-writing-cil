@@ -58,6 +58,7 @@
     <Compile Include="CliOptions.cs" />
     <Compile Include="CliProgram.cs" />
     <Compile Include="DocBook\GatherOptions.cs" />
+    <Compile Include="IProcessOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

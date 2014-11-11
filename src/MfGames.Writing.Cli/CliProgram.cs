@@ -53,18 +53,18 @@ namespace MfGames.Writing.Cli
                 Environment.Exit(1);
             }
 
-            Console.WriteLine(
-                "verb {0}",
-                invokedVerb);
+            // If this is a process options, then configure it.
+            var processOptions = invokedOptions as IProcessOptions;
 
-            //// Create the process options and execute it.
-            //var process = new GatherProcess
-            //    {
-            //        InputFile = new FileInfo(options.RemainingArguments[0]), 
-            //        OutputFile = new FileInfo(options.RemainingArguments[1])
-            //    };
+            if (processOptions != null)
+            {
+                ProcessBase process = processOptions.GetProcess();
+                process.Run();
+                return;
+            }
 
-            //process.Run();
+            // If we got this far, we have an invalid state.
+            throw new Exception("Cannot identify resulting options.");
         }
 
         #endregion
