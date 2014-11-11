@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MfGames">
-      <HintPath>..\packages\MfGames.4.0\lib\net35\MfGames.dll</HintPath>
+      <HintPath>..\packages\MfGames.4.1.0.0\lib\net40\MfGames.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
