@@ -1,45 +1,45 @@
-﻿// Copyright 2012 Moonfire Games
-// Released under the MIT license
-// http://mfgames.com/mfgames-writing/license
-
-using System.Collections.Generic;
-
+﻿// <copyright file="CliArguments.cs" company="Moonfire Games">
+//     Copyright (c) Moonfire Games. Some Rights Reserved.
+// </copyright>
+// MIT Licensed (http://opensource.org/licenses/MIT)
 namespace MfGames.Writing.Cli
 {
-	/// <summary>
-	/// Defines the command-line arguments.
-	/// </summary>
-	internal class CliArguments
-	{
-		#region Properties
+    using System.Collections.Generic;
 
-		/// <summary>
-		/// Gets or sets the format for the operation.
-		/// </summary>
-		public string Format { get; set; }
+    /// <summary>
+    /// Defines the command-line arguments.
+    /// </summary>
+    internal class CliArguments
+    {
+        #region Constructors and Destructors
 
-		/// <summary>
-		/// Gets or sets the operation to perform on the specific format.
-		/// </summary>
-		public string Operation { get; set; }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CliArguments"/> class.
+        /// </summary>
+        public CliArguments()
+        {
+            this.RemainingArguments = new List<string>();
+        }
 
-		/// <summary>
-		/// Gets the remaining arguments.
-		/// </summary>
-		public List<string> RemainingArguments { get; private set; }
+        #endregion
 
-		#endregion
+        #region Public Properties
 
-		#region Constructors
+        /// <summary>
+        /// Gets or sets the format for the operation.
+        /// </summary>
+        public string Format { get; set; }
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="CliArguments"/> class.
-		/// </summary>
-		public CliArguments()
-		{
-			RemainingArguments = new List<string>();
-		}
+        /// <summary>
+        /// Gets or sets the operation to perform on the specific format.
+        /// </summary>
+        public string Operation { get; set; }
 
-		#endregion
-	}
+        /// <summary>
+        /// Gets the remaining arguments.
+        /// </summary>
+        public List<string> RemainingArguments { get; private set; }
+
+        #endregion
+    }
 }
