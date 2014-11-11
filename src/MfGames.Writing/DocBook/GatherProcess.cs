@@ -1,13 +1,12 @@
-﻿// <copyright file="DocbookGatherProcess.cs" company="Moonfire Games">
+﻿// <copyright file="GatherProcess.cs" company="Moonfire Games">
 //     Copyright (c) Moonfire Games. Some Rights Reserved.
 // </copyright>
 // MIT Licensed (http://opensource.org/licenses/MIT)
-namespace MfGames.Writing
+namespace MfGames.Writing.DocBook
 {
     using System.IO;
     using System.Xml;
 
-    using MfGames.Writing.Xml;
     using MfGames.Xml;
 
     /// <summary>
@@ -15,7 +14,7 @@ namespace MfGames.Writing
     /// the XInclude operations along with copying files and media into the
     /// same directory as the output.
     /// </summary>
-    public class DocbookGatherProcess : ProcessBase
+    public class GatherProcess : ProcessBase
     {
         #region Public Properties
 
@@ -97,7 +96,7 @@ namespace MfGames.Writing
                 this.InputFile.FullName);
 
             // Set up the gathering XML reader.
-            var gatheringReader = new DocBookGatheringReader(xmlReader)
+            var gatheringReader = new GatheringReader(xmlReader)
                 {
                     OutputFile = this.OutputFile, 
                     OutputDirectory = this.OutputDirectory

@@ -1,8 +1,8 @@
-﻿// <copyright file="DocBookGatheringReader.cs" company="Moonfire Games">
+﻿// <copyright file="GatheringReader.cs" company="Moonfire Games">
 //     Copyright (c) Moonfire Games. Some Rights Reserved.
 // </copyright>
 // MIT Licensed (http://opensource.org/licenses/MIT)
-namespace MfGames.Writing.Xml
+namespace MfGames.Writing.DocBook
 {
     using System;
     using System.Collections.Generic;
@@ -17,7 +17,7 @@ namespace MfGames.Writing.Xml
     /// Implements a reader that also gathers the media files reference by the
     /// DocBook file.
     /// </summary>
-    public class DocBookGatheringReader : XIncludeReader
+    public class GatheringReader : XIncludeReader
     {
         #region Fields
 
@@ -34,12 +34,12 @@ namespace MfGames.Writing.Xml
         #region Constructors and Destructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DocBookGatheringReader"/> class.
+        /// Initializes a new instance of the <see cref="GatheringReader"/> class.
         /// </summary>
         /// <param name="underlyingReader">
         /// The underlying reader.
         /// </param>
-        public DocBookGatheringReader(XmlReader underlyingReader)
+        public GatheringReader(XmlReader underlyingReader)
             : base(underlyingReader)
         {
         }
@@ -199,7 +199,7 @@ namespace MfGames.Writing.Xml
             string name, 
             string namespaceURI)
         {
-            return GetAttribute(name);
+            return this.GetAttribute(name);
         }
 
         /// <summary>
