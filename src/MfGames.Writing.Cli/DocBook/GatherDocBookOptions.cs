@@ -1,4 +1,4 @@
-﻿// <copyright file="GatherOptions.cs" company="Moonfire Games">
+﻿// <copyright file="GatherDocBookOptions.cs" company="Moonfire Games">
 //     Copyright (c) Moonfire Games. Some Rights Reserved.
 // </copyright>
 // MIT Licensed (http://opensource.org/licenses/MIT)
@@ -14,7 +14,7 @@ namespace MfGames.Writing.Cli.DocBook
     /// <summary>
     /// Defines the option for the `docbook-gather` operation.
     /// </summary>
-    internal class GatherOptions : IProcessOptions
+    internal class GatherDocBookOptions : IProcessOptions
     {
         #region Public Properties
 
@@ -36,7 +36,7 @@ namespace MfGames.Writing.Cli.DocBook
         /// </returns>
         public ProcessBase GetProcess()
         {
-            var process = new GatherProcess
+            var process = new GatherDocBookProcess
             {
                 InputFile = new FileInfo(this.RemainingArguments[0]), 
                 OutputFile = new FileInfo(this.RemainingArguments[1])

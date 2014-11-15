@@ -1,21 +1,40 @@
-﻿// <copyright file="GatherProcess.cs" company="Moonfire Games">
+﻿// <copyright file="ConvertToDocBookProcess.cs" company="Moonfire Games">
 //     Copyright (c) Moonfire Games. Some Rights Reserved.
 // </copyright>
 // MIT Licensed (http://opensource.org/licenses/MIT)
-namespace MfGames.Writing.DocBook
+namespace MfGames.Writing.Markdown
 {
     using System.IO;
     using System.Xml;
 
+    using MfGames.Writing.DocBook;
     using MfGames.Xml;
 
     /// <summary>
-    /// Defines a gathering process for DocBook files which intergrates all of
-    /// the XInclude operations along with copying files and media into the
-    /// same directory as the output.
+    /// Defines a process for converting Markdown into DocBook 5 XML files.
     /// </summary>
-    public class GatherProcess : ProcessBase
+    public class ConvertToDocBookProcess : ProcessBase
     {
+        #region Fields
+
+        /// <summary>
+        /// </summary>
+        private string rootElement;
+
+        #endregion
+
+        #region Constructors and Destructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConvertToDocBookProcess"/> class.
+        /// </summary>
+        public ConvertToDocBookProcess()
+        {
+            this.rootElement = "article";
+        }
+
+        #endregion
+
         #region Public Properties
 
         /// <summary>
@@ -34,6 +53,78 @@ namespace MfGames.Writing.DocBook
         /// Gets or sets the output file, which will be a DocBook format.
         /// </summary>
         public FileInfo OutputFile { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether attributions should be parsed out of
+        /// blockquotes. An attribution is separated by the final "---" in the final
+        /// paragraph of a blockquote.
+        /// </summary>
+        public bool ParseAttributions { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether backtics ('`') should be converted
+        /// into DocBook foreignphrase elements.
+        /// </summary>
+        public bool ParseBackticks { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to parse commented regions in the
+        /// files. A comment is defined as any line starts with an octothorpe ('#').
+        /// </summary>
+        public bool ParseComments { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a blockquote immediatelly following a
+        /// heading is converted into a formal epigraph instead of remaining a blockquote.
+        /// </summary>
+        public bool ParseEpigraphs { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether quotes and foreignphrases are parsed to identify
+        /// a language code. If they are, they are put into the xml:lang attribute of
+        /// the resulting element. Language codes are a ISO 639 code followed by a colon.
+        /// For example "en: English" or "fra-que: French".
+        /// </summary>
+        public bool ParseLanguages { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether notes and special paragraphs are
+        /// converted into the appropriate docbook elements. These are identified as having
+        /// "Important:", "Note:", "Tip:", and "Warning:" in the beginning of the paragraph.
+        /// The case of the text is not important. Sequential paragraphs of the same type are
+        /// combined into a single one unless the exclaimation instead of a colon is used
+        /// (for example, "Note! ").
+        /// </summary>
+        public bool ParseNotes { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether flag to determine if quotes should be
+        /// parsed either into ASCII, Unicode, or DocBook elements.
+        /// </summary>
+        public bool ParseQuotes { get; set; }
+
+        /// <summary>
+        /// Gets or sets the top-level DocBook element for the parsed file. This defaults
+        /// to "article".
+        /// </summary>
+        public string RootElement
+        {
+            get
+            {
+                return this.rootElement;
+            }
+
+            set
+            {
+                this.rootElement = value ?? "article";
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the "xml:id" attribute set at the top-level of the resulting
+        /// document.
+        /// </summary>
+        public string XmlId { get; set; }
 
         #endregion
 
