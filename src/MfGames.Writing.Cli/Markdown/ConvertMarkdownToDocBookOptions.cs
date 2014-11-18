@@ -110,8 +110,8 @@ namespace MfGames.Writing.Cli.Markdown
                 ParseQuotes = this.ParseQuotes, 
                 RootElement = this.RootElement, 
                 XmlId = this.XmlId, 
-                InputFile = new FileInfo(this.RemainingArguments[0]), 
-                OutputFile = new FileInfo(this.RemainingArguments[1]), 
+                Input = new StreamReader(File.OpenRead(this.RemainingArguments[0])), 
+                Output = new StreamWriter(File.OpenWrite(this.RemainingArguments[1])), 
             };
 
             return process;

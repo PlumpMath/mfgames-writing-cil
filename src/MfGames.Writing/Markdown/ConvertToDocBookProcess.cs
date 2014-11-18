@@ -4,11 +4,16 @@
 // MIT Licensed (http://opensource.org/licenses/MIT)
 namespace MfGames.Writing.Markdown
 {
+    using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Xml;
 
-    using MfGames.Writing.DocBook;
+    using MfGames.Text.Markup;
+    using MfGames.Text.Markup.Markdown;
     using MfGames.Xml;
+
+    using YamlDotNet.Serialization;
 
     /// <summary>
     /// Defines a process for converting Markdown into DocBook 5 XML files.
@@ -21,6 +26,8 @@ namespace MfGames.Writing.Markdown
         /// </summary>
         private string rootElement;
 
+        private string paragraphElement;
+
         #endregion
 
         #region Constructors and Destructors
@@ -31,6 +38,7 @@ namespace MfGames.Writing.Markdown
         public ConvertToDocBookProcess()
         {
             this.rootElement = "article";
+            this.paragraphElement = "para";
         }
 
         #endregion
@@ -38,21 +46,27 @@ namespace MfGames.Writing.Markdown
         #region Public Properties
 
         /// <summary>
-        /// Gets or sets the input file which is in DocBook 5 format.
+        /// Gets or sets the input.
         /// </summary>
-        public FileInfo InputFile { get; set; }
+        /// <value>
+        /// The input.
+        /// </value>
+        public TextReader Input { get; set; }
 
         /// <summary>
-        /// Gets or sets the output directory for the media files. References
-        /// in the resulting XML will be relative from the OutputFile to
-        /// this directory.
+        /// Gets or sets the output.
         /// </summary>
-        public DirectoryInfo OutputDirectory { get; set; }
-
+        /// <value>
+        /// The output.
+        /// </value>
+        public TextWriter Output { get; set; }
         /// <summary>
-        /// Gets or sets the output file, which will be a DocBook format.
+        /// Gets or sets the output settings.
         /// </summary>
-        public FileInfo OutputFile { get; set; }
+        /// <value>
+        /// The output settings.
+        /// </value>
+        public XmlWriterSettings OutputSettings { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether attributions should be parsed out of
@@ -135,33 +149,122 @@ namespace MfGames.Writing.Markdown
         /// </summary>
         public override void Run()
         {
-            // Verify data.
-            if (this.OutputDirectory == null)
-            {
-                this.OutputDirectory = this.OutputFile.Directory;
-            }
-
             // Verify that the input file exists since if we can't, it is
             // meaningless to continue.
-            if (!this.InputFile.Exists)
+            if (this.Input == null)
+                throw new Exception("Input was not properly set to a value.");
+
+            // Open up a handle to the Markdown file that we are processing. This uses an
+            // event-based reader to allow us to write the output file easily.
+            using (var markdownReader = new MarkdownReader(Input))
             {
-                throw new FileNotFoundException(
-                    "Cannot find input file.", 
-                    this.InputFile.FullName);
+                // We also need an XML writer for the resulting file.
+                using (XmlWriter xmlWriter = this.CreateXmlWriter())
+                {
+                    // Convert the Markdown into XML.
+                    this.ConvertMarkdown(
+                        markdownReader,
+                        xmlWriter);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Converts the given Markdown stream into an appropriate DocBook 5 XML.
+        /// </summary>
+        /// <param name="markdown"></param>
+        /// <param name="xml"></param>
+        public void ConvertMarkdown(
+            MarkdownReader markdown,
+            XmlWriter xml)
+
+        {
+            // Ensure our contracts.
+            if (markdown == null)
+            {
+                throw new ArgumentNullException("markdown");
             }
 
-            // We use the identity XML writer to copy out the resulting XML
-            // stream but use an intelligent loader to do all the work. This
-            // way, we can reuse much of the IO functionality without
-            // cluttering our code.
-            using (XmlReader xmlReader = this.CreateXmlReader())
-            using (XmlIdentityWriter xmlWriter = this.CreateXmlWriter())
+            if (xml == null)
             {
-                // Using the identity XML writer will go through the entire
-                // reader XML and write it out. This will cause the gathering
-                // reader to load in the various XInclude elements and also
-                // copy the media files to the appropriate place.
-                xmlWriter.Load(xmlReader);
+                throw new ArgumentNullException("xml");
+            }
+
+            // Loop through the Markdown and process each one.
+            while (markdown.Read())
+            {
+                switch (markdown.ElementType)
+                {
+                    case MarkupElementType.BeginDocument:
+                        xml.WriteStartDocument(true);
+                        xml.WriteStartElement(
+                            rootElement,
+                            XmlConstants.DocBookNamespace5);
+                        xml.WriteAttributeString("version", "5");
+                        break;
+
+                    case MarkupElementType.EndDocument:
+                        xml.WriteEndElement();
+                        xml.WriteEndDocument();
+                        break;
+
+                    case MarkupElementType.BeginMetadata:
+                    case MarkupElementType.EndMetadata:
+                        break;
+
+                    case MarkupElementType.YamlMetadata:
+                        var deserializer = new Deserializer();
+                        string text = markdown.Text;
+                        text = text.TrimEnd()
+                            .TrimEnd('-')
+                            .TrimEnd();
+                        var stringReader = new StringReader(text);
+
+                        object metadata = deserializer.Deserialize(stringReader);
+                        WriteInfoElement(
+                            xml,
+                            metadata);
+                        break;
+
+                    case MarkupElementType.BeginParagraph:
+                        xml.WriteStartElement(paragraphElement);
+                        break;
+
+                    case MarkupElementType.Text:
+                        xml.WriteString(markdown.Text);
+                        break;
+
+                        case MarkupElementType.EndParagraph:
+                        xml.WriteEndElement();
+                        break;
+
+                    default:
+                        Console.WriteLine("Cannot process: " + markdown.ElementType);
+                        break;
+                }
+            }
+        }
+
+        private void WriteInfoElement(XmlWriter xml,
+            object metadata)
+        {
+            // If we have a null or blank, then skip it.
+            if (metadata == null) return;
+
+            // If this is a dictionary, then process it.
+            var dictionary = metadata as Dictionary<object, object>;
+
+            if (dictionary != null)
+            {
+                foreach (var entry in dictionary)
+                {
+                    if (Convert.ToString(entry.Key) == "title")
+                    {
+                        xml.WriteElementString(
+                            "title",
+                            Convert.ToString(entry.Value));
+                    }
+                }
             }
         }
 
@@ -170,52 +273,24 @@ namespace MfGames.Writing.Markdown
         #region Methods
 
         /// <summary>
-        /// Creates the XML reader for loading the XML file.
-        /// </summary>
-        /// <returns>
-        /// </returns>
-        private XmlReader CreateXmlReader()
-        {
-            // Get an appropriate stream to the input file.
-            FileStream stream = this.InputFile.Open(
-                FileMode.Open, 
-                FileAccess.Read, 
-                FileShare.Read);
-            XmlReader xmlReader = XmlReader.Create(
-                stream, 
-                new XmlReaderSettings(), 
-                this.InputFile.FullName);
-
-            // Set up the gathering XML reader.
-            var gatheringReader = new GatheringReader(xmlReader)
-                {
-                    OutputFile = this.OutputFile, 
-                    OutputDirectory = this.OutputDirectory
-                };
-            return gatheringReader;
-        }
-
-        /// <summary>
         /// Creates the XML writer to the output file.
         /// </summary>
         /// <returns>
         /// </returns>
-        private XmlIdentityWriter CreateXmlWriter()
+        private XmlWriter CreateXmlWriter()
         {
             // Create an appropriate output stream for the file.
-            FileStream stream = this.OutputFile.Open(
-                FileMode.Create, 
-                FileAccess.Write);
-            var writingSettings = new XmlWriterSettings
-                {
-                    OmitXmlDeclaration = true
-                };
+            var writingSettings = OutputSettings;
+            
+            if (writingSettings == null)
+                writingSettings = new XmlWriterSettings
+                 {
+                     OmitXmlDeclaration = true
+                 };
             XmlWriter xmlWriter = XmlWriter.Create(
-                stream, 
+                Output, 
                 writingSettings);
-            var identityWriter = new XmlIdentityWriter(xmlWriter);
-
-            return identityWriter;
+            return xmlWriter;
         }
 
         #endregion
