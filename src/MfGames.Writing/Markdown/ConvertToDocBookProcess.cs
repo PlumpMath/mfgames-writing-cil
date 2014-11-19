@@ -24,9 +24,11 @@ namespace MfGames.Writing.Markdown
 
         /// <summary>
         /// </summary>
-        private string rootElement;
+        private readonly string paragraphElement;
 
-        private string paragraphElement;
+        /// <summary>
+        /// </summary>
+        private string rootElement;
 
         #endregion
 
@@ -60,6 +62,7 @@ namespace MfGames.Writing.Markdown
         /// The output.
         /// </value>
         public TextWriter Output { get; set; }
+
         /// <summary>
         /// Gets or sets the output settings.
         /// </summary>
@@ -145,39 +148,15 @@ namespace MfGames.Writing.Markdown
         #region Public Methods and Operators
 
         /// <summary>
-        /// Runs this process and performs the appropriate actions.
-        /// </summary>
-        public override void Run()
-        {
-            // Verify that the input file exists since if we can't, it is
-            // meaningless to continue.
-            if (this.Input == null)
-                throw new Exception("Input was not properly set to a value.");
-
-            // Open up a handle to the Markdown file that we are processing. This uses an
-            // event-based reader to allow us to write the output file easily.
-            using (var markdownReader = new MarkdownReader(Input))
-            {
-                // We also need an XML writer for the resulting file.
-                using (XmlWriter xmlWriter = this.CreateXmlWriter())
-                {
-                    // Convert the Markdown into XML.
-                    this.ConvertMarkdown(
-                        markdownReader,
-                        xmlWriter);
-                }
-            }
-        }
-
-        /// <summary>
         /// Converts the given Markdown stream into an appropriate DocBook 5 XML.
         /// </summary>
-        /// <param name="markdown"></param>
-        /// <param name="xml"></param>
+        /// <param name="markdown">
+        /// </param>
+        /// <param name="xml">
+        /// </param>
         public void ConvertMarkdown(
-            MarkdownReader markdown,
+            MarkdownReader markdown, 
             XmlWriter xml)
-
         {
             // Ensure our contracts.
             if (markdown == null)
@@ -198,9 +177,11 @@ namespace MfGames.Writing.Markdown
                     case MarkupElementType.BeginDocument:
                         xml.WriteStartDocument(true);
                         xml.WriteStartElement(
-                            rootElement,
-                            XmlConstants.DocBookNamespace5);
-                        xml.WriteAttributeString("version", "5");
+                            this.rootElement, 
+                            XmlNamespaces.DocBook5);
+                        xml.WriteAttributeString(
+                            "version", 
+                            "5");
                         break;
 
                     case MarkupElementType.EndDocument:
@@ -221,49 +202,54 @@ namespace MfGames.Writing.Markdown
                         var stringReader = new StringReader(text);
 
                         object metadata = deserializer.Deserialize(stringReader);
-                        WriteInfoElement(
-                            xml,
+                        this.WriteInfoElement(
+                            xml, 
                             metadata);
                         break;
 
                     case MarkupElementType.BeginParagraph:
-                        xml.WriteStartElement(paragraphElement);
+                        xml.WriteStartElement(this.paragraphElement);
                         break;
 
                     case MarkupElementType.Text:
                         xml.WriteString(markdown.Text);
                         break;
 
-                        case MarkupElementType.EndParagraph:
+                    case MarkupElementType.EndParagraph:
                         xml.WriteEndElement();
                         break;
 
                     default:
-                        Console.WriteLine("Cannot process: " + markdown.ElementType);
+                        Console.WriteLine(
+                            "Cannot process: " + markdown.ElementType);
                         break;
                 }
             }
         }
 
-        private void WriteInfoElement(XmlWriter xml,
-            object metadata)
+        /// <summary>
+        /// Runs this process and performs the appropriate actions.
+        /// </summary>
+        public override void Run()
         {
-            // If we have a null or blank, then skip it.
-            if (metadata == null) return;
-
-            // If this is a dictionary, then process it.
-            var dictionary = metadata as Dictionary<object, object>;
-
-            if (dictionary != null)
+            // Verify that the input file exists since if we can't, it is
+            // meaningless to continue.
+            if (this.Input == null)
             {
-                foreach (var entry in dictionary)
+                throw new Exception("Input was not properly set to a value.");
+            }
+
+            // Open up a handle to the Markdown file that we are processing. This uses an
+            // event-based reader to allow us to write the output file easily.
+            using (var markdownReader = new MarkdownReader(this.Input))
+            {
+                // We also need an XML writer for the resulting file.
+                using (XmlWriter xmlWriter = this.CreateXmlWriter())
                 {
-                    if (Convert.ToString(entry.Key) == "title")
-                    {
-                        xml.WriteElementString(
-                            "title",
-                            Convert.ToString(entry.Value));
-                    }
+                    // Convert the Markdown into XML.
+                    this.ConvertMarkdown(
+                        markdownReader, 
+                        xmlWriter);
                 }
             }
         }
@@ -280,17 +266,53 @@ namespace MfGames.Writing.Markdown
         private XmlWriter CreateXmlWriter()
         {
             // Create an appropriate output stream for the file.
-            var writingSettings = OutputSettings;
-            
+            XmlWriterSettings writingSettings = this.OutputSettings;
+
             if (writingSettings == null)
+            {
                 writingSettings = new XmlWriterSettings
-                 {
-                     OmitXmlDeclaration = true
-                 };
+                    {
+                        OmitXmlDeclaration = true
+                    };
+            }
+
             XmlWriter xmlWriter = XmlWriter.Create(
-                Output, 
+                this.Output, 
                 writingSettings);
             return xmlWriter;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="xml">
+        /// </param>
+        /// <param name="metadata">
+        /// </param>
+        private void WriteInfoElement(
+            XmlWriter xml, 
+            object metadata)
+        {
+            // If we have a null or blank, then skip it.
+            if (metadata == null)
+            {
+                return;
+            }
+
+            // If this is a dictionary, then process it.
+            var dictionary = metadata as Dictionary<object, object>;
+
+            if (dictionary != null)
+            {
+                foreach (KeyValuePair<object, object> entry in dictionary)
+                {
+                    if (Convert.ToString(entry.Key) == "title")
+                    {
+                        xml.WriteElementString(
+                            "title", 
+                            Convert.ToString(entry.Value));
+                    }
+                }
+            }
         }
 
         #endregion

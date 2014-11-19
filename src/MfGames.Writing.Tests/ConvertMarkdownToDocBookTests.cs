@@ -29,7 +29,7 @@ namespace MfGames.Writing.Tests
                 };
             var expected = new[]
                 {
-                    "<article version=\"5\" xmlns=\"http://faked-docbook\">",
+                    "<article version=\"5\" xmlns=\"http://docbook.org/ns/docbook\">",
                     "<title>Article Title</title>", "<para>One two three.</para>",
                     "</article>",
                 };
