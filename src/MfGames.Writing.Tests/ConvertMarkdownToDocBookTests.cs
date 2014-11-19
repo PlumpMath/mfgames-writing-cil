@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// <copyright file="ConvertMarkdownToDocBookTests.cs" company="Moonfire Games">
+//     Copyright (c) Moonfire Games. Some Rights Reserved.
+// </copyright>
+// MIT Licensed (http://opensource.org/licenses/MIT)
 namespace MfGames.Writing.Tests
 {
+    using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Xml;
 
     using MfGames.Writing.Markdown;
+    using MfGames.Xml;
 
     using NUnit.Framework;
 
@@ -18,65 +19,87 @@ namespace MfGames.Writing.Tests
     /// </summary>
     public class ConvertMarkdownToDocBookTests
     {
+        #region Public Methods and Operators
+
+        /// <summary>
+        /// </summary>
         [Test]
         public void SimpleMarkdownConversion()
         {
             // Set up the input and output.
             var input = new[]
                 {
-                    "---", "title: Article Title", "---",
-                    "One two three.",
+                    "---", 
+                    "title: Article Title", 
+                    "---", 
+                    "One two three.", 
                 };
             var expected = new[]
                 {
-                    "<article version=\"5\" xmlns=\"http://docbook.org/ns/docbook\">",
-                    "<title>Article Title</title>", "<para>One two three.</para>",
-                    "</article>",
+                    string.Format(
+                        "<article version=\"5\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5), 
+                    "<title>Article Title</title>", 
+                    "<para>One two three.</para>", 
+                    "</article>", 
                 };
 
             // Execute the process to convert it.
             string inputBuffer = string.Join(Environment.NewLine, input);
-            StringReader stringReader = new StringReader(inputBuffer);
-            StringWriter stringWriter = new StringWriter();
-            var process = new ConvertToDocBookProcess() {
-                Input = stringReader,
-                Output = stringWriter,
-                OutputSettings = new XmlWriterSettings()
-                    {
-                        OmitXmlDeclaration = true,
-                        Indent = true,
-                        IndentChars = "",
-                    },
-            };
+            var stringReader = new StringReader(inputBuffer);
+            var stringWriter = new StringWriter();
+            var process = new ConvertToDocBookProcess
+                {
+                    Input = stringReader,
+                    Output = stringWriter,
+                    OutputSettings = new XmlWriterSettings
+                        {
+                            OmitXmlDeclaration = true,
+                            Indent = true,
+                            IndentChars = string.Empty,
+                        },
+                };
 
             process.Run();
 
             // Compare the results.
             string actual = stringWriter.ToString();
-            CompareText(
-                expected,
+            this.CompareText(
+                expected, 
                 actual);
         }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// </summary>
+        /// <param name="expected">
+        /// </param>
+        /// <param name="actualBuffer">
+        /// </param>
         private void CompareText(
-            string[] expected,
+            string[] expected, 
             string actualBuffer)
         {
             // Split the actual buffer into lines.
-            List<string> actual = new List<string>();
+            var actual = new List<string>();
 
             using (var reader = new StringReader(actualBuffer))
             {
                 string line;
 
                 while ((line = reader.ReadLine()) != null)
-                actual.Add(line);
+                {
+                    actual.Add(line);
+                }
             }
 
             // Compare the individual lines.
             bool mismatch = false;
             int max = Math.Max(
-                expected.Length,
+                expected.Length, 
                 actual.Count);
 
             for (int i = 0; i < max; i++)
@@ -90,10 +113,10 @@ namespace MfGames.Writing.Tests
                 {
                     Console.WriteLine("Line {0:N0} did not match:");
                     Console.WriteLine(
-                        "  Expected: {0}",
+                        "  Expected: {0}", 
                         expectedLine);
                     Console.WriteLine(
-                        "  Actual:   {0}",
+                        "  Actual:   {0}", 
                         actualLine);
                     mismatch = true;
                 }
@@ -107,5 +130,7 @@ namespace MfGames.Writing.Tests
                     "Output lines did not match expected. See console log for details.");
             }
         }
+
+        #endregion
     }
 }
