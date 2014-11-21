@@ -187,7 +187,7 @@ namespace MfGames.Writing.Markdown
                             XmlNamespaces.DocBook5);
                         xml.WriteAttributeString(
                             "version", 
-                            "5");
+                            "5.0");
                         break;
 
                     case MarkupElementType.EndDocument:

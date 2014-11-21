@@ -37,7 +37,7 @@ namespace MfGames.Writing.Tests
             var expected = new[]
                 {
                     string.Format(
-                        "<article version=\"5\" xmlns=\"{0}\">", 
+                        "<article version=\"5.0\" xmlns=\"{0}\">", 
                         XmlNamespaces.DocBook5), 
                     "<title>Article Title</title>", 
                     "<para>One two three.</para>", 
