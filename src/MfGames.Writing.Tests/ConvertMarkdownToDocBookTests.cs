@@ -50,14 +50,15 @@ namespace MfGames.Writing.Tests
             var stringWriter = new StringWriter();
             var process = new ConvertToDocBookProcess
                 {
-                    Input = stringReader,
-                    Output = stringWriter,
+                    Input = stringReader, 
+                    Output = stringWriter, 
                     OutputSettings = new XmlWriterSettings
                         {
-                            OmitXmlDeclaration = true,
-                            Indent = true,
-                            IndentChars = string.Empty,
-                        },
+                            OmitXmlDeclaration = true, 
+                            Indent = true, 
+                            IndentChars = string.Empty, 
+                        }, 
+                    TitleOutsideInfo = true, 
                 };
 
             process.Run();
@@ -111,7 +112,7 @@ namespace MfGames.Writing.Tests
                 // If the line doesn't match, then report it.
                 if (expectedLine != actualLine)
                 {
-                    Console.WriteLine("Line {0:N0} did not match:");
+                    Console.WriteLine("Line {0:N0} did not match:", i);
                     Console.WriteLine(
                         "  Expected: {0}", 
                         expectedLine);
@@ -125,6 +126,25 @@ namespace MfGames.Writing.Tests
             // If we have a mismatch, then blow up.
             if (mismatch)
             {
+                // We didn't have the lines we expected, so write them all out.
+                Console.WriteLine();
+
+                Console.WriteLine("Expected");
+                Console.WriteLine("========");
+                foreach (string line in expected)
+                {
+                    Console.WriteLine(line);
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("Actual");
+                Console.WriteLine("========");
+                foreach (string line in actual)
+                {
+                    Console.WriteLine(line);
+                }
+
+                // Finish up with a message.
                 Console.WriteLine();
                 Assert.Fail(
                     "Output lines did not match expected. See console log for details.");

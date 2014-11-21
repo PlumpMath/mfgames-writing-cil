@@ -44,11 +44,23 @@ namespace MfGames.Writing.Markdown
 
         /// <summary>
         /// </summary>
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
+
+        /// <summary>
+        /// </summary>
+        public bool HasNonTitleMetadata { get; private set; }
+
+        /// <summary>
+        /// </summary>
+        public bool HasTitle { get; private set; }
 
         /// <summary>
         /// </summary>
         public Dictionary<string, List<string>> Schemes { get; private set; }
+
+        /// <summary>
+        /// </summary>
+        public string Summary { get; set; }
 
         /// <summary>
         /// </summary>
@@ -92,22 +104,32 @@ namespace MfGames.Writing.Markdown
             {
                 case "title":
                     this.Title = value.Trim();
+                    this.HasTitle = true;
                     break;
 
                 case "author":
                     this.ParseAuthor(value);
+                    this.HasNonTitleMetadata = true;
                     break;
 
                 case "copyright":
                     this.ParseCopyright(value);
+                    this.HasNonTitleMetadata = true;
                     break;
 
                 case "date":
                     this.ParseDate(value);
+                    this.HasNonTitleMetadata = true;
+                    break;
+
+                case "sumamry":
+                    this.ParseSummary(value);
+                    this.HasNonTitleMetadata = true;
                     break;
 
                 default:
                     this.ParseSchemes(key, value);
+                    this.HasNonTitleMetadata = true;
                     break;
             }
         }
@@ -248,6 +270,15 @@ namespace MfGames.Writing.Markdown
 
             // Save the value in the key set.
             this.Schemes[key] = terms;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="value">
+        /// </param>
+        private void ParseSummary(string value)
+        {
+            this.Summary = value;
         }
 
         #endregion

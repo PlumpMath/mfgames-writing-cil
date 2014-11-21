@@ -100,19 +100,23 @@ namespace MfGames.Writing.Cli.Markdown
         public ProcessBase GetProcess()
         {
             var process = new ConvertToDocBookProcess
-            {
-                ParseAttributions = this.ParseAttributions, 
-                ParseBackticks = this.ParseBackticks, 
-                ParseComments = this.ParseComments, 
-                ParseEpigraphs = this.ParseEpigraphs, 
-                ParseLanguages = this.ParseLanguages, 
-                ParseNotes = this.ParseNotes, 
-                ParseQuotes = this.ParseQuotes, 
-                RootElement = this.RootElement, 
-                XmlId = this.XmlId, 
-                Input = new StreamReader(File.OpenRead(this.RemainingArguments[0])), 
-                Output = new StreamWriter(File.OpenWrite(this.RemainingArguments[1])), 
-            };
+                {
+                    ParseAttributions = this.ParseAttributions, 
+                    ParseBackticks = this.ParseBackticks, 
+                    ParseComments = this.ParseComments, 
+                    ParseEpigraphs = this.ParseEpigraphs, 
+                    ParseLanguages = this.ParseLanguages, 
+                    ParseNotes = this.ParseNotes, 
+                    ParseQuotes = this.ParseQuotes, 
+                    RootElement = this.RootElement, 
+                    XmlId = this.XmlId, 
+                    Input =
+                        new StreamReader(
+                            File.OpenRead(this.RemainingArguments[0])), 
+                    Output =
+                        new StreamWriter(
+                            File.OpenWrite(this.RemainingArguments[1])), 
+                };
 
             return process;
         }

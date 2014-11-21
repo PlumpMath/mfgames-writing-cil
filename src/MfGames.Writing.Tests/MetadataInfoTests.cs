@@ -68,11 +68,13 @@ namespace MfGames.Writing.Tests
         {
             var metadata = new MetadataInfo();
             metadata.Add("date", "2014-10-12");
+            Assert.IsTrue(metadata.Date.HasValue, "Date is unexpected.");
             Assert.AreEqual(
-                2014, metadata.Date.Year, "Date.Year is unexpected.");
+                2014, metadata.Date.Value.Year, "Date.Year is unexpected.");
             Assert.AreEqual(
-                10, metadata.Date.Month, "Date.Month is unexpected.");
-            Assert.AreEqual(12, metadata.Date.Day, "Date.Day is unexpected.");
+                10, metadata.Date.Value.Month, "Date.Month is unexpected.");
+            Assert.AreEqual(
+                12, metadata.Date.Value.Day, "Date.Day is unexpected.");
         }
 
         /// <summary>

@@ -5,8 +5,6 @@
 namespace MfGames.Writing.Cli
 {
     using System;
-    using System.Collections.Generic;
-    using System.IO;
 
     using CommandLine;
 
@@ -36,9 +34,9 @@ namespace MfGames.Writing.Cli
                     settings.IgnoreUnknownArguments = false;
                 });
             bool successful = parser.ParseArguments(
-                args,
-                options,
-                (verb,
+                args, 
+                options, 
+                (verb, 
                     subOptions) =>
                 {
                     // if parsing succeeds the verb name and correct instance

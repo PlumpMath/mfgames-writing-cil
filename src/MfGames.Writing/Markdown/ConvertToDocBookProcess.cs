@@ -5,10 +5,9 @@
 namespace MfGames.Writing.Markdown
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Xml;
     using System.Linq;
+    using System.Xml;
 
     using MfGames.Text.Markup;
     using MfGames.Text.Markup.Markdown;
@@ -139,6 +138,12 @@ namespace MfGames.Writing.Markdown
         }
 
         /// <summary>
+        /// Gets or sets a flag whether the title element should be
+        /// outside of the info tag.
+        /// </summary>
+        public bool TitleOutsideInfo { get; set; }
+
+        /// <summary>
         /// Gets or sets the "xml:id" attribute set at the top-level of the resulting
         /// document.
         /// </summary>
@@ -192,10 +197,12 @@ namespace MfGames.Writing.Markdown
 
                     case MarkupElementType.BeginMetadata:
                     case MarkupElementType.EndMetadata:
+                    case MarkupElementType.BeginContent:
+                    case MarkupElementType.EndContent:
                         break;
 
                     case MarkupElementType.YamlMetadata:
-                        this.ParseYamlMetadata(markdown, xml);
+                        this.WriteYamlMetadata(markdown, xml);
                         break;
 
                     case MarkupElementType.BeginParagraph:
@@ -216,26 +223,6 @@ namespace MfGames.Writing.Markdown
                         break;
                 }
             }
-        }
-
-        private void ParseYamlMetadata(
-            MarkdownReader markdown,
-            XmlWriter xml)
-        {
-            // Deserialize the YAML text.
-            var deserializer = new Deserializer();
-            string text = markdown.Text;
-            text = text.TrimEnd()
-                .TrimEnd('-')
-                .TrimEnd();
-            var stringReader = new StringReader(text);
-
-            object objects = deserializer.Deserialize(stringReader);
-
-            // Create the metadata from the object graph.
-            MetadataInfo metadata = new MetadataInfo();
-
-            metadata.AddYamlObjects(objects);
         }
 
         /// <summary>
@@ -270,6 +257,135 @@ namespace MfGames.Writing.Markdown
         #region Methods
 
         /// <summary>
+        /// </summary>
+        /// <param name="xml">
+        /// </param>
+        /// <param name="metadata">
+        /// </param>
+        private static void WriteMetadataCopyright(
+            XmlWriter xml, 
+            MetadataInfo metadata)
+        {
+            // If we don't have a year or holder, then skip it.
+            bool hasHolder = string.IsNullOrWhiteSpace(metadata.CopyrightHolder);
+            bool hasYears = metadata.CopyrightYears.Count == 0;
+
+            if (hasYears || hasHolder)
+            {
+                return;
+            }
+
+            // Write out the copyright element.
+            xml.WriteStartElement("copyright");
+
+            // Write out the years first.
+            foreach (int year in metadata.CopyrightYears)
+            {
+                xml.WriteElementString("year", year.ToString());
+            }
+
+            // Write out the holder next.
+            if (!hasHolder)
+            {
+                xml.WriteElementString("holder", metadata.CopyrightHolder);
+            }
+
+            // Finish off the copyright.
+            xml.WriteEndElement();
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="xml">
+        /// </param>
+        /// <param name="metadata">
+        /// </param>
+        private static void WriteMetadataDate(
+            XmlWriter xml, 
+            MetadataInfo metadata)
+        {
+            if (metadata.Date.HasValue)
+            {
+                xml.WriteElementString(
+                    "date", 
+                    metadata.Date.Value.ToString("yyyy-MM-dd"));
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="xml">
+        /// </param>
+        /// <param name="metadata">
+        /// </param>
+        private static void WriteMetadataSchemes(
+            XmlWriter xml, 
+            MetadataInfo metadata)
+        {
+            // If we don't have at least one scheme, skip it.
+            if (metadata.Schemes.Count == 0)
+            {
+                return;
+            }
+
+            // Write out each scheme in order.
+            IOrderedEnumerable<string> keys =
+                metadata.Schemes.Keys.OrderBy(s => s);
+
+            foreach (string key in keys)
+            {
+                // Write out the beginning of the subject set.
+                xml.WriteStartElement("subjectset");
+                xml.WriteAttributeString("scheme", key);
+                xml.WriteStartElement("subject");
+
+                // Write out all the terms.
+                IOrderedEnumerable<string> terms =
+                    metadata.Schemes[key].OrderBy(s => s);
+
+                foreach (string term in terms)
+                {
+                    xml.WriteElementString("subjectterm", term);
+                }
+
+                // Finish up the subjectset.
+                xml.WriteEndElement();
+                xml.WriteEndElement();
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="xml">
+        /// </param>
+        /// <param name="metadata">
+        /// </param>
+        private static void WriteMetadataSummary(
+            XmlWriter xml, 
+            MetadataInfo metadata)
+        {
+            if (!string.IsNullOrWhiteSpace(metadata.Summary))
+            {
+                xml.WriteStartElement("abstract");
+                xml.WriteElementString("para", metadata.Summary);
+                xml.WriteEndElement();
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="xml">
+        /// </param>
+        /// <param name="metadata">
+        /// </param>
+        private static void WriteMetadataTitle(
+            XmlWriter xml, 
+            MetadataInfo metadata)
+        {
+            xml.WriteElementString("title", metadata.Title);
+        }
+
+        /// <summary>
         /// Creates the XML writer to the output file.
         /// </summary>
         /// <returns>
@@ -291,6 +407,79 @@ namespace MfGames.Writing.Markdown
                 this.Output, 
                 writingSettings);
             return xmlWriter;
+        }
+
+        /// <summary>
+        /// Writes out the elements of the metadata to the XML writer.
+        /// </summary>
+        /// <param name="xml">
+        /// </param>
+        /// <param name="metadata">
+        /// </param>
+        private void WriteMetadata(
+            XmlWriter xml, 
+            MetadataInfo metadata)
+        {
+            // See if we need to write the title tag outside the info
+            // block.
+            if (metadata.HasTitle && this.TitleOutsideInfo)
+            {
+                WriteMetadataTitle(xml, metadata);
+            }
+
+            // We only write an info element if we have at least one
+            // element that needs to be written out.
+            bool titleInInfo = metadata.HasTitle && !this.TitleOutsideInfo;
+            bool needsInfo = metadata.HasNonTitleMetadata;
+
+            if (titleInInfo || needsInfo)
+            {
+                // Write out the info tag first.
+                xml.WriteStartElement("info");
+
+                // Write out the info, if we have it.
+                if (titleInInfo)
+                {
+                    WriteMetadataTitle(xml, metadata);
+                }
+
+                WriteMetadataCopyright(xml, metadata);
+                WriteMetadataDate(xml, metadata);
+                WriteMetadataSummary(xml, metadata);
+                WriteMetadataSchemes(xml, metadata);
+
+                // Finish up the info tag.
+                xml.WriteEndElement();
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="markdown">
+        /// </param>
+        /// <param name="xml">
+        /// </param>
+        private void WriteYamlMetadata(
+            MarkdownReader markdown, 
+            XmlWriter xml)
+        {
+            // Deserialize the YAML text.
+            var deserializer = new Deserializer();
+            string text = markdown.Text;
+            text = text.TrimEnd()
+                .TrimEnd('-')
+                .TrimEnd();
+            var stringReader = new StringReader(text);
+
+            object objects = deserializer.Deserialize(stringReader);
+
+            // Create the metadata from the object graph.
+            var metadata = new MetadataInfo();
+
+            metadata.AddYamlObjects(objects);
+
+            // Use the resulting metadata to write out the elements.
+            this.WriteMetadata(xml, metadata);
         }
 
         #endregion

@@ -37,10 +37,10 @@ namespace MfGames.Writing.Cli.DocBook
         public ProcessBase GetProcess()
         {
             var process = new GatherDocBookProcess
-            {
-                InputFile = new FileInfo(this.RemainingArguments[0]), 
-                OutputFile = new FileInfo(this.RemainingArguments[1])
-            };
+                {
+                    InputFile = new FileInfo(this.RemainingArguments[0]), 
+                    OutputFile = new FileInfo(this.RemainingArguments[1])
+                };
 
             return process;
         }

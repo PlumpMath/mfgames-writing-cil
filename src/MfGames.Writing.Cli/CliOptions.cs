@@ -20,29 +20,21 @@ namespace MfGames.Writing.Cli
         /// Gets or sets the options for the sub-command form transforming
         /// files from one format to another.
         /// </summary>
-        [VerbOption("docbook-gather", 
-            HelpText =
-                "Gathers all dependencies for a DocBook file into a single one."
-            )]
-        public GatherDocBookOptions GatherDocBookOptions { get; set; }
-
-        #endregion
-
-        #region Public Methods and Operators
+        /// <returns>
+        /// </returns>
+        [VerbOption("convert-markdown-docbook", 
+            HelpText = "Converts a Markdown file into a DocBook one.")]
+        public ConvertMarkdownToDocBookOptions ConvertMarkdownToDocBook { get; set; }
 
         /// <summary>
         /// Gets or sets the options for the sub-command form transforming
         /// files from one format to another.
         /// </summary>
-        /// <returns>
-        /// </returns>
-        [VerbOption("convert-markdown-docbook", 
-            HelpText = "Converts a Markdown file into a DocBook one.")]
-        public ConvertMarkdownToDocBookOptions ConvertMarkdownToDocBook
-        {
-            get;
-            set;
-        }
+        [VerbOption("docbook-gather", 
+            HelpText =
+                "Gathers all dependencies for a DocBook file into a single one."
+            )]
+        public GatherDocBookOptions GatherDocBookOptions { get; set; }
 
         #endregion
     }
