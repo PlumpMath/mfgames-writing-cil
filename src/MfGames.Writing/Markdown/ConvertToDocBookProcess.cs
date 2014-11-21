@@ -8,6 +8,7 @@ namespace MfGames.Writing.Markdown
     using System.Collections.Generic;
     using System.IO;
     using System.Xml;
+    using System.Linq;
 
     using MfGames.Text.Markup;
     using MfGames.Text.Markup.Markdown;
@@ -194,17 +195,7 @@ namespace MfGames.Writing.Markdown
                         break;
 
                     case MarkupElementType.YamlMetadata:
-                        var deserializer = new Deserializer();
-                        string text = markdown.Text;
-                        text = text.TrimEnd()
-                            .TrimEnd('-')
-                            .TrimEnd();
-                        var stringReader = new StringReader(text);
-
-                        object metadata = deserializer.Deserialize(stringReader);
-                        this.WriteInfoElement(
-                            xml, 
-                            metadata);
+                        this.ParseYamlMetadata(markdown, xml);
                         break;
 
                     case MarkupElementType.BeginParagraph:
@@ -225,6 +216,26 @@ namespace MfGames.Writing.Markdown
                         break;
                 }
             }
+        }
+
+        private void ParseYamlMetadata(
+            MarkdownReader markdown,
+            XmlWriter xml)
+        {
+            // Deserialize the YAML text.
+            var deserializer = new Deserializer();
+            string text = markdown.Text;
+            text = text.TrimEnd()
+                .TrimEnd('-')
+                .TrimEnd();
+            var stringReader = new StringReader(text);
+
+            object objects = deserializer.Deserialize(stringReader);
+
+            // Create the metadata from the object graph.
+            MetadataInfo metadata = new MetadataInfo();
+
+            metadata.AddYamlObjects(objects);
         }
 
         /// <summary>
@@ -280,39 +291,6 @@ namespace MfGames.Writing.Markdown
                 this.Output, 
                 writingSettings);
             return xmlWriter;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="xml">
-        /// </param>
-        /// <param name="metadata">
-        /// </param>
-        private void WriteInfoElement(
-            XmlWriter xml, 
-            object metadata)
-        {
-            // If we have a null or blank, then skip it.
-            if (metadata == null)
-            {
-                return;
-            }
-
-            // If this is a dictionary, then process it.
-            var dictionary = metadata as Dictionary<object, object>;
-
-            if (dictionary != null)
-            {
-                foreach (KeyValuePair<object, object> entry in dictionary)
-                {
-                    if (Convert.ToString(entry.Key) == "title")
-                    {
-                        xml.WriteElementString(
-                            "title", 
-                            Convert.ToString(entry.Value));
-                    }
-                }
-            }
         }
 
         #endregion

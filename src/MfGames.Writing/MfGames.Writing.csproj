@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="DocBook\GatherDocBookProcess.cs" />
     <Compile Include="Markdown\ConvertToDocBookProcess.cs" />
+    <Compile Include="Markdown\MetadataInfo.cs" />
     <Compile Include="ProcessBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DocBook\GatheringReader.cs" />
