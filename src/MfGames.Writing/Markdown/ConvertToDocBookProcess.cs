@@ -201,6 +201,24 @@ namespace MfGames.Writing.Markdown
                     case MarkupElementType.EndContent:
                         break;
 
+                    case MarkupElementType.BeginCodeSpan:
+                        this.WriteForeignPhrase(markdown, xml);
+                        break;
+
+                    case MarkupElementType.BeginBold:
+                        this.WriteBold(markdown, xml);
+                        break;
+
+                    case MarkupElementType.BeginItalic:
+                        this.WriteItalic(markdown, xml);
+                        break;
+
+                    case MarkupElementType.EndCodeSpan:
+                    case MarkupElementType.EndBold:
+                    case MarkupElementType.EndItalic:
+                        xml.WriteEndElement();
+                        break;
+
                     case MarkupElementType.YamlMetadata:
                         this.WriteYamlMetadata(markdown, xml);
                         break;
@@ -215,6 +233,10 @@ namespace MfGames.Writing.Markdown
 
                     case MarkupElementType.EndParagraph:
                         xml.WriteEndElement();
+                        break;
+
+                    case MarkupElementType.HorizontalRule:
+                        this.WriteBreak(markdown, xml);
                         break;
 
                     default:
@@ -407,6 +429,62 @@ namespace MfGames.Writing.Markdown
                 this.Output, 
                 writingSettings);
             return xmlWriter;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="markdown">
+        /// </param>
+        /// <param name="xml">
+        /// </param>
+        private void WriteBold(
+            MarkdownReader markdown, 
+            XmlWriter xml)
+        {
+            xml.WriteStartElement("emphasis");
+            xml.WriteAttributeString("role", "strong");
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="markdown">
+        /// </param>
+        /// <param name="xml">
+        /// </param>
+        private void WriteBreak(
+            MarkdownReader markdown, 
+            XmlWriter xml)
+        {
+            xml.WriteStartElement("bridgehead");
+            xml.WriteAttributeString("renderas", "other");
+            xml.WriteAttributeString("otherrenderas", "break");
+            xml.WriteEndElement();
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="markdown">
+        /// </param>
+        /// <param name="xml">
+        /// </param>
+        private void WriteForeignPhrase(
+            MarkdownReader markdown, 
+            XmlWriter xml)
+        {
+            xml.WriteStartElement("foreignphrase");
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="markdown">
+        /// </param>
+        /// <param name="xml">
+        /// </param>
+        private void WriteItalic(
+            MarkdownReader markdown, 
+            XmlWriter xml)
+        {
+            xml.WriteStartElement("emphasis");
         }
 
         /// <summary>

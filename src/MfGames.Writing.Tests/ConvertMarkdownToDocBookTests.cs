@@ -24,7 +24,104 @@ namespace MfGames.Writing.Tests
         /// <summary>
         /// </summary>
         [Test]
-        public void SimpleMarkdownConversion()
+        public void ConvertBreak()
+        {
+            // Set up the input and output.
+            var input = new[]
+                {
+                    "One",
+                    "",
+                    "---",
+                    "",
+                    "Two",
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5), 
+                    "<para>One</para>",
+                    "<bridgehead renderas=\"other\" otherrenderas=\"break\" />",
+                    "<para>Two</para>", 
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected);
+        }
+
+
+        /// <summary>
+        /// </summary>
+        [Test]
+        public void ConvertBold()
+        {
+            // Set up the input and output.
+            var input = new[]
+                {
+                    "One **two** three.", 
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5), 
+                    "<para>One <emphasis role=\"strong\">two</emphasis> three.</para>"
+                    , 
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected);
+        }
+
+        /// <summary>
+        /// </summary>
+        [Test]
+        public void ConvertForeignPhrase()
+        {
+            // Set up the input and output.
+            var input = new[]
+                {
+                    "One `two` three.", 
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5), 
+                    "<para>One <foreignphrase>two</foreignphrase> three.</para>"
+                    , 
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected);
+        }
+
+        /// <summary>
+        /// </summary>
+        [Test]
+        public void ConvertItalic()
+        {
+            // Set up the input and output.
+            var input = new[]
+                {
+                    "One *two* three.", 
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5), 
+                    "<para>One <emphasis>two</emphasis> three.</para>", 
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected);
+        }
+
+        /// <summary>
+        /// </summary>
+        [Test]
+        public void ConvertTitleAndOneParagraph()
         {
             // Set up the input and output.
             var input = new[]
@@ -44,30 +141,7 @@ namespace MfGames.Writing.Tests
                     "</article>", 
                 };
 
-            // Execute the process to convert it.
-            string inputBuffer = string.Join(Environment.NewLine, input);
-            var stringReader = new StringReader(inputBuffer);
-            var stringWriter = new StringWriter();
-            var process = new ConvertToDocBookProcess
-                {
-                    Input = stringReader, 
-                    Output = stringWriter, 
-                    OutputSettings = new XmlWriterSettings
-                        {
-                            OmitXmlDeclaration = true, 
-                            Indent = true, 
-                            IndentChars = string.Empty, 
-                        }, 
-                    TitleOutsideInfo = true, 
-                };
-
-            process.Run();
-
-            // Compare the results.
-            string actual = stringWriter.ToString();
-            this.CompareText(
-                expected, 
-                actual);
+            this.TestConvert(input, expected);
         }
 
         #endregion
@@ -149,6 +223,43 @@ namespace MfGames.Writing.Tests
                 Assert.Fail(
                     "Output lines did not match expected. See console log for details.");
             }
+        }
+
+        /// <summary>
+        /// Implements the common test method for most of the unit tests.
+        /// </summary>
+        /// <param name="input">
+        /// </param>
+        /// <param name="expected">
+        /// </param>
+        private void TestConvert(
+            string[] input, 
+            string[] expected)
+        {
+            // Execute the process to convert it.
+            string inputBuffer = string.Join(Environment.NewLine, input);
+            var stringReader = new StringReader(inputBuffer);
+            var stringWriter = new StringWriter();
+            var process = new ConvertToDocBookProcess
+                {
+                    Input = stringReader, 
+                    Output = stringWriter, 
+                    OutputSettings = new XmlWriterSettings
+                        {
+                            OmitXmlDeclaration = true, 
+                            Indent = true, 
+                            IndentChars = string.Empty, 
+                        }, 
+                    TitleOutsideInfo = true, 
+                };
+
+            process.Run();
+
+            // Compare the results.
+            string actual = stringWriter.ToString();
+            this.CompareText(
+                expected, 
+                actual);
         }
 
         #endregion
