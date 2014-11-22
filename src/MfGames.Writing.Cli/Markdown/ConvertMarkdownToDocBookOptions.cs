@@ -34,12 +34,6 @@ namespace MfGames.Writing.Cli.Markdown
         public bool ParseBackticks { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to parse commented regions in the
-        /// files. A comment is defined as any line starts with an octothorpe ('#').
-        /// </summary>
-        public bool ParseComments { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether a blockquote immediatelly following a
         /// heading is converted into a formal epigraph instead of remaining a blockquote.
         /// </summary>
@@ -103,7 +97,6 @@ namespace MfGames.Writing.Cli.Markdown
                 {
                     ParseAttributions = this.ParseAttributions, 
                     ParseBackticks = this.ParseBackticks, 
-                    ParseComments = this.ParseComments, 
                     ParseEpigraphs = this.ParseEpigraphs, 
                     ParseLanguages = this.ParseLanguages, 
                     ParseNotes = this.ParseNotes, 

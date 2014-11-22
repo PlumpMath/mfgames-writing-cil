@@ -24,60 +24,6 @@ namespace MfGames.Writing.Tests
         /// <summary>
         /// </summary>
         [Test]
-        public void ConvertBreak()
-        {
-            // Set up the input and output.
-            var input = new[]
-                {
-                    "One",
-                    "",
-                    "---",
-                    "",
-                    "Two",
-                };
-            var expected = new[]
-                {
-                    string.Format(
-                        "<article version=\"5.0\" xmlns=\"{0}\">", 
-                        XmlNamespaces.DocBook5), 
-                    "<para>One</para>",
-                    "<bridgehead renderas=\"other\" otherrenderas=\"break\" />",
-                    "<para>Two</para>", 
-                    "</article>", 
-                };
-
-            this.TestConvert(input, expected);
-        }
-
-        /// <summary>
-        /// </summary>
-        [Test]
-        public void ConvertWithXmlId()
-        {
-            // Set up the input and output.
-            const string XmlId = "test-id";
-
-            var input = new[]
-                {
-                    "One",
-                };
-            var expected = new[]
-                {
-                    string.Format(
-                        "<article version=\"5.0\" xml:id=\"{1}\" xmlns=\"{0}\">", 
-                        XmlNamespaces.DocBook5,
-                        XmlId), 
-                    "<para>One</para>",
-                    "</article>", 
-                };
-
-            this.TestConvert(input, expected, XmlId);
-        }
-
-
-        /// <summary>
-        /// </summary>
-        [Test]
         public void ConvertBold()
         {
             // Set up the input and output.
@@ -92,6 +38,34 @@ namespace MfGames.Writing.Tests
                         XmlNamespaces.DocBook5), 
                     "<para>One <emphasis role=\"strong\">two</emphasis> three.</para>"
                     , 
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected);
+        }
+
+        /// <summary>
+        /// </summary>
+        [Test]
+        public void ConvertBreak()
+        {
+            // Set up the input and output.
+            var input = new[]
+                {
+                    "One", 
+                    string.Empty, 
+                    "---", 
+                    string.Empty, 
+                    "Two", 
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5), 
+                    "<para>One</para>", 
+                    "<bridgehead renderas=\"other\" otherrenderas=\"break\" />", 
+                    "<para>Two</para>", 
                     "</article>", 
                 };
 
@@ -146,6 +120,93 @@ namespace MfGames.Writing.Tests
         /// <summary>
         /// </summary>
         [Test]
+        public void ConvertLeadingBlockquote()
+        {
+            // Set up the input and output.
+            const string XmlId = "test-id";
+
+            var input = new[]
+                {
+                    "> One", 
+                    string.Empty, 
+                    "Two", 
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5), 
+                    "<blockquote>", 
+                    "<para>One</para>", 
+                    "</blockquote>", 
+                    "<para>Two</para>", 
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected);
+        }
+
+        /// <summary>
+        /// </summary>
+        [Test]
+        public void ConvertLeadingEpigraph()
+        {
+            // Set up the input and output.
+            const string XmlId = "test-id";
+
+            var input = new[]
+                {
+                    "> One", 
+                    string.Empty, 
+                    "Two", 
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5), 
+                    "<blockquote>", 
+                    "<para>One</para>", 
+                    "</blockquote>", 
+                    "<para>Two</para>", 
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected, parseEpigraphs: true);
+        }
+
+        /// <summary>
+        /// </summary>
+        [Test]
+        public void ConvertMiddleBlockquote()
+        {
+            // Set up the input and output.
+            const string XmlId = "test-id";
+
+            var input = new[]
+                {
+                    "One", 
+                    string.Empty, 
+                    "> Two", 
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5), 
+                    "<para>One</para>", 
+                    "<blockquote>", 
+                    "<para>Two</para>", 
+                    "</blockquote>", 
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected);
+        }
+
+        /// <summary>
+        /// </summary>
+        [Test]
         public void ConvertTitleAndOneParagraph()
         {
             // Set up the input and output.
@@ -167,6 +228,31 @@ namespace MfGames.Writing.Tests
                 };
 
             this.TestConvert(input, expected);
+        }
+
+        /// <summary>
+        /// </summary>
+        [Test]
+        public void ConvertWithXmlId()
+        {
+            // Set up the input and output.
+            const string XmlId = "test-id";
+
+            var input = new[]
+                {
+                    "One", 
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xml:id=\"{1}\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5, 
+                        XmlId), 
+                    "<para>One</para>", 
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected, XmlId);
         }
 
         #endregion
@@ -257,10 +343,15 @@ namespace MfGames.Writing.Tests
         /// </param>
         /// <param name="expected">
         /// </param>
+        /// <param name="xmlId">
+        /// </param>
+        /// <param name="parseEpigraphs">
+        /// </param>
         private void TestConvert(
             string[] input, 
-            string[] expected,
-            string xmlId = null)
+            string[] expected, 
+            string xmlId = null, 
+            bool parseEpigraphs = false)
         {
             // Execute the process to convert it.
             string inputBuffer = string.Join(Environment.NewLine, input);
@@ -276,8 +367,9 @@ namespace MfGames.Writing.Tests
                             Indent = true, 
                             IndentChars = string.Empty, 
                         }, 
-                    TitleOutsideInfo = true,
-                    XmlId = xmlId,
+                    TitleOutsideInfo = true, 
+                    XmlId = xmlId, 
+                    ParseEpigraphs = parseEpigraphs, 
                 };
 
             process.Run();

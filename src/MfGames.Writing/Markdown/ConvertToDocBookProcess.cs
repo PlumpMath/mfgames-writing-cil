@@ -85,12 +85,6 @@ namespace MfGames.Writing.Markdown
         public bool ParseBackticks { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to parse commented regions in the
-        /// files. A comment is defined as any line starts with an octothorpe ('#').
-        /// </summary>
-        public bool ParseComments { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether a blockquote immediatelly following a
         /// heading is converted into a formal epigraph instead of remaining a blockquote.
         /// </summary>
@@ -219,6 +213,14 @@ namespace MfGames.Writing.Markdown
 
                     case MarkupElementType.BeginParagraph:
                         xml.WriteStartElement(this.paragraphElement);
+                        break;
+
+                    case MarkupElementType.BeginBlockquote:
+                        this.WriteBeginBlockquote(markdown, xml);
+                        break;
+
+                    case MarkupElementType.EndBlockquote:
+                        xml.WriteEndElement();
                         break;
 
                     case MarkupElementType.Text:
@@ -423,6 +425,19 @@ namespace MfGames.Writing.Markdown
                 this.Output, 
                 writingSettings);
             return xmlWriter;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="markdown">
+        /// </param>
+        /// <param name="xml">
+        /// </param>
+        private void WriteBeginBlockquote(
+            MarkdownReader markdown, 
+            XmlWriter xml)
+        {
+            xml.WriteStartElement("blockquote");
         }
 
         /// <summary>
