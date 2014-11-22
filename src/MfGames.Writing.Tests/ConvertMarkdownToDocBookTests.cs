@@ -123,8 +123,6 @@ namespace MfGames.Writing.Tests
         public void ConvertLeadingBlockquote()
         {
             // Set up the input and output.
-            const string XmlId = "test-id";
-
             var input = new[]
                 {
                     "> One", 
@@ -152,8 +150,6 @@ namespace MfGames.Writing.Tests
         public void ConvertLeadingEpigraph()
         {
             // Set up the input and output.
-            const string XmlId = "test-id";
-
             var input = new[]
                 {
                     "> One", 
@@ -181,8 +177,6 @@ namespace MfGames.Writing.Tests
         public void ConvertMiddleBlockquote()
         {
             // Set up the input and output.
-            const string XmlId = "test-id";
-
             var input = new[]
                 {
                     "One", 
