@@ -181,13 +181,7 @@ namespace MfGames.Writing.Markdown
                 switch (markdown.ElementType)
                 {
                     case MarkupElementType.BeginDocument:
-                        xml.WriteStartDocument(true);
-                        xml.WriteStartElement(
-                            this.rootElement, 
-                            XmlNamespaces.DocBook5);
-                        xml.WriteAttributeString(
-                            "version", 
-                            "5.0");
+                        this.WriteBeginDocument(xml);
                         break;
 
                     case MarkupElementType.EndDocument:
@@ -429,6 +423,28 @@ namespace MfGames.Writing.Markdown
                 this.Output, 
                 writingSettings);
             return xmlWriter;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="xml">
+        /// </param>
+        private void WriteBeginDocument(XmlWriter xml)
+        {
+            // Write out the start of the document.
+            xml.WriteStartDocument(true);
+            xml.WriteStartElement(
+                this.rootElement, 
+                XmlNamespaces.DocBook5);
+            xml.WriteAttributeString(
+                "version", 
+                "5.0");
+
+            // If we have an ID, then write it out.
+            if (!string.IsNullOrWhiteSpace(this.XmlId))
+            {
+                xml.WriteAttributeString("xml", "id", null, this.XmlId);
+            }
         }
 
         /// <summary>

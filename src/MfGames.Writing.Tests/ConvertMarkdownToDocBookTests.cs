@@ -49,6 +49,31 @@ namespace MfGames.Writing.Tests
             this.TestConvert(input, expected);
         }
 
+        /// <summary>
+        /// </summary>
+        [Test]
+        public void ConvertWithXmlId()
+        {
+            // Set up the input and output.
+            const string XmlId = "test-id";
+
+            var input = new[]
+                {
+                    "One",
+                };
+            var expected = new[]
+                {
+                    string.Format(
+                        "<article version=\"5.0\" xml:id=\"{1}\" xmlns=\"{0}\">", 
+                        XmlNamespaces.DocBook5,
+                        XmlId), 
+                    "<para>One</para>",
+                    "</article>", 
+                };
+
+            this.TestConvert(input, expected, XmlId);
+        }
+
 
         /// <summary>
         /// </summary>
@@ -234,7 +259,8 @@ namespace MfGames.Writing.Tests
         /// </param>
         private void TestConvert(
             string[] input, 
-            string[] expected)
+            string[] expected,
+            string xmlId = null)
         {
             // Execute the process to convert it.
             string inputBuffer = string.Join(Environment.NewLine, input);
@@ -250,7 +276,8 @@ namespace MfGames.Writing.Tests
                             Indent = true, 
                             IndentChars = string.Empty, 
                         }, 
-                    TitleOutsideInfo = true, 
+                    TitleOutsideInfo = true,
+                    XmlId = xmlId,
                 };
 
             process.Run();
