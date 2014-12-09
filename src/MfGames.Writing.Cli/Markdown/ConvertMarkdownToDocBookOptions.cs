@@ -93,6 +93,12 @@ namespace MfGames.Writing.Cli.Markdown
         /// </returns>
         public ProcessBase GetProcess()
         {
+            FileStream outputStream = File.Open(this.RemainingArguments[1], FileMode.Create);
+            var outputWriter = new StreamWriter(outputStream);
+
+            FileStream inputStream = File.OpenRead(this.RemainingArguments[0]);
+            var inputReader = new StreamReader(inputStream);
+
             var process = new ConvertToDocBookProcess
                 {
                     ParseAttributions = this.ParseAttributions, 
@@ -103,12 +109,8 @@ namespace MfGames.Writing.Cli.Markdown
                     ParseQuotes = this.ParseQuotes, 
                     RootElement = this.RootElement, 
                     XmlId = this.XmlId, 
-                    Input =
-                        new StreamReader(
-                            File.OpenRead(this.RemainingArguments[0])), 
-                    Output =
-                        new StreamWriter(
-                            File.OpenWrite(this.RemainingArguments[1])), 
+                    Input = inputReader, 
+                    Output = outputWriter,
                 };
 
             return process;

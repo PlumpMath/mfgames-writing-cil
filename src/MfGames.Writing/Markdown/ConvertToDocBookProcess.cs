@@ -172,6 +172,7 @@ namespace MfGames.Writing.Markdown
             // Loop through the Markdown and process each one.
             while (markdown.Read())
             {
+                Console.WriteLine(markdown.ElementType);
                 switch (markdown.ElementType)
                 {
                     case MarkupElementType.BeginDocument:
@@ -231,6 +232,16 @@ namespace MfGames.Writing.Markdown
                         xml.WriteEndElement();
                         break;
 
+                    case MarkupElementType.BeginHeader:
+                        xml.WriteStartElement("bridgehead");
+                        xml.WriteAttributeString(
+                            "renderas", "sect" + markdown.HeadingLevel);
+                        break;
+
+                    case MarkupElementType.EndHeader:
+                        xml.WriteEndElement();
+                        break;
+
                     case MarkupElementType.HorizontalRule:
                         this.WriteBreak(markdown, xml);
                         break;
@@ -257,7 +268,12 @@ namespace MfGames.Writing.Markdown
 
             // Open up a handle to the Markdown file that we are processing. This uses an
             // event-based reader to allow us to write the output file easily.
-            using (var markdownReader = new MarkdownReader(this.Input))
+            var options = new MarkdownOptions()
+                {
+                    AllowMetadata = true,
+                };
+
+            using (var markdownReader = new MarkdownReader(this.Input, options))
             {
                 // We also need an XML writer for the resulting file.
                 using (XmlWriter xmlWriter = this.CreateXmlWriter())
